@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Emotion Wheel Explorer</title>
+  <!-- React and ReactDOM CDN -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  
+  <!-- Babel CDN for JSX support -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <style>
+    /* Basic Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f2f5;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .emotion-wheel-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .emotion-search {
+      margin-bottom: 20px;
+      padding: 10px;
+      width: 100%;
+      max-width: 300px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    svg {
+      width: 100%;
+      max-width: 500px;
+      height: auto;
+    }
+
+    .emotion-details {
+      margin-top: 30px;
+      width: 100%;
+      max-width: 500px;
+      background-color: #fff;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .emotion-details h2 {
+      margin-bottom: 10px;
+      color: #444;
+    }
+
+    .emotion-details p {
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    .emotion-details ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      margin-bottom: 20px;
+    }
+
+    .emotion-details button {
+      padding: 10px 20px;
+      background-color: #2196F3;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .emotion-details button:hover {
+      background-color: #1976D2;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .emotion-details {
+        padding: 15px;
+      }
+
+      .emotion-search {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Emotion Wheel Explorer</h1>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    // Emotion Data
+    const emotions = [
+      {
+        id: 1,
+        name: "Joy",
+        category: "Positive",
+        functions: "Enhances social bonds, promotes well-being",
+        behaviors: ["Smiling", "Laughing", "Sharing with others"],
+      },
+      {
+        id: 2,
+        name: "Sadness",
+        category: "Negative",
+        functions: "Signals need for support, encourages reflection",
+        behaviors: ["Crying", "Withdrawing", "Seeking comfort"],
+      },
+      {
+        id: 3,
+        name: "Fear",
+        category: "Negative",
+        functions: "Prepares for fight or flight, ensures survival",
+        behaviors: ["Increased heart rate", "Avoidance", "Heightened alertness"],
+      },
+      {
+        id: 4,
+        name: "Anger",
+        category: "Negative",
+        functions: "Signals injustice, motivates change",
+        behaviors: ["Raised voice", "Aggressive gestures", "Confrontation"],
+      },
+      {
+        id: 5,
+        name: "Surprise",
+        category: "Neutral",
+        functions: "Alerts to new information, prompts reassessment",
+        behaviors: ["Raised eyebrows", "Open mouth", "Startled reaction"],
+      },
+      {
+        id: 6,
+        name: "Disgust",
+        category: "Negative",
+        functions: "Protects from harmful substances, maintains hygiene",
+        behaviors: ["Wrinkled nose", "Recoil", "Verbal expressions of distaste"],
+      },
+      {
+        id: 7,
+        name: "Trust",
+        category: "Positive",
+        functions: "Builds relationships, fosters cooperation",
+        behaviors: ["Open body language", "Sharing personal information", "Reliance on others"],
+      },
+      {
+        id: 8,
+        name: "Anticipation",
+        category: "Positive",
+        functions: "Prepares for future events, motivates planning",
+        behaviors: ["Increased focus", "Excitement", "Strategizing"],
+      },
+      // Add more emotions as needed
+    ];
+
+    // EmotionWheel Component
+    const EmotionWheel = () => {
+      const [selectedEmotion, setSelectedEmotion] = useState(null);
+      const [searchTerm, setSearchTerm] = useState("");
+
+      const handleEmotionClick = (emotion) => {
+        setSelectedEmotion(emotion);
+      };
+
+      const handleClose = () => {
+        setSelectedEmotion(null);
+      };
+
+      const filteredEmotions = emotions.filter((emotion) =>
+        emotion.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+
+      const totalEmotions = filteredEmotions.length;
+      const anglePerEmotion = totalEmotions > 0 ? 360 / totalEmotions : 0;
+
+      return (
+        <div className="emotion-wheel-container">
+          <input
+            type="text"
+            placeholder="Search Emotion..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="emotion-search"
+          />
+          <svg viewBox="0 0 400 400">
+            {filteredEmotions.map((emotion, index) => {
+              const startAngle = index * anglePerEmotion - 90; // Start from top
+              const endAngle = startAngle + anglePerEmotion;
+              const largeArcFlag = anglePerEmotion > 180 ? 1 : 0;
+
+              const radius = 150;
+              const centerX = 200;
+              const centerY = 200;
+
+              const radians = (angle) => (angle * Math.PI) / 180;
+
+              const x1 = centerX + radius * Math.cos(radians(startAngle));
+              const y1 = centerY + radius * Math.sin(radians(startAngle));
+              const x2 = centerX + radius * Math.cos(radians(endAngle));
+              const y2 = centerY + radius * Math.sin(radians(endAngle));
+
+              const pathData = `
+                M ${centerX} ${centerY}
+                L ${x1} ${y1}
+                A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}
+                Z
+              `;
+
+              // Calculate label position
+              const midAngle = startAngle + anglePerEmotion / 2;
+              const labelX = centerX + (radius / 1.5) * Math.cos(radians(midAngle));
+              const labelY = centerY + (radius / 1.5) * Math.sin(radians(midAngle));
+
+              // Determine color based on category
+              let fillColor = "#757575"; // Default Neutral
+              if (emotion.category === "Positive") fillColor = "#4CAF50";
+              else if (emotion.category === "Negative") fillColor = "#F44336";
+
+              return (
+                <g key={emotion.id}>
+                  <path
+                    d={pathData}
+                    fill={fillColor}
+                    stroke="#fff"
+                    onClick={() => handleEmotionClick(emotion)}
+                    style={{ cursor: "pointer" }}
+                  />
+                  <text
+                    x={labelX}
+                    y={labelY}
+                    fill="#fff"
+                    fontSize="14"
+                    textAnchor="middle"
+                    alignmentBaseline="middle"
+                    pointerEvents="none"
+                  >
+                    {emotion.name}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
+
+          {selectedEmotion && (
+            <div className="emotion-details">
+              <h2>{selectedEmotion.name}</h2>
+              <p><strong>Category:</strong> {selectedEmotion.category}</p>
+              <p><strong>Functions:</strong> {selectedEmotion.functions}</p>
+              <p><strong>Associated Behaviors:</strong></p>
+              <ul>
+                {selectedEmotion.behaviors.map((behavior, idx) => (
+                  <li key={idx}>{behavior}</li>
+                ))}
+              </ul>
+              <button onClick={handleClose}>Close</button>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // App Component
+    const App = () => {
+      return (
+        <div className="App">
+          <EmotionWheel />
+        </div>
+      );
+    };
+
+    // Render the App
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
